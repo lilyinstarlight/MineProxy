@@ -49,7 +49,8 @@ public class MineProxy extends Thread {
 					this.port = port;
 					System.out.println("Proxying successful");
 					break;
-				} catch (BindException ex) {
+				}
+				catch (BindException ex) {
 					port++;
 				}
 			}
@@ -60,7 +61,8 @@ public class MineProxy extends Thread {
 				MineProxyHandler handler = new MineProxyHandler(this, connection);
 				handler.start();
 			}
-		} catch(IOException ex) {
+		}
+		catch(IOException ex) {
 			System.err.println("Error in server accept loop: " + ex.getLocalizedMessage());
 		}
 	}
@@ -70,7 +72,8 @@ public class MineProxy extends Thread {
 		while (port < 0) {
 			try {
 				sleep(50);
-			} catch (InterruptedException ex) {
+			}
+			catch (InterruptedException ex) {
 				System.err.println("Interrupted while waiting for port: " + ex.getLocalizedMessage());
 			}
 		}

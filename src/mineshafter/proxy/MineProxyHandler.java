@@ -1,29 +1,3 @@
-/*
- * This file is part of Technic Launcher.
- *
- * Copyright (c) 2013-2013, Technic <http://www.technicpack.net/>
- * Technic Launcher is licensed under the Spout License Version 1.
- *
- * Technic Launcher is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the Spout License Version 1.
- *
- * Technic Launcher is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the Spout License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License and see <http://www.spout.org/SpoutDevLicenseV1.txt> for the full license,
- * including the MIT license.
- */
 package mineshafter.proxy;
 
 import java.io.BufferedInputStream;
@@ -110,7 +84,8 @@ public class MineProxyHandler extends Thread {
 				System.out.println("Skin from cache");
 
 				data = proxy.skinCache.get(username);  // Then get it from there
-			} else {
+			}
+			else {
 				url = "http://" + MineProxy.authServer + "/getskin.php?user=" + username;
 
 				System.out.println("To: " + url);
@@ -121,7 +96,7 @@ public class MineProxyHandler extends Thread {
 				proxy.skinCache.put(username, data); // And put it in there
 			}
 
-		} 
+		}
 		// If Cape Request
 		else if(capeMatcher.matches()) {
 			System.out.println("Cape");
@@ -130,7 +105,8 @@ public class MineProxyHandler extends Thread {
 			if(proxy.capeCache.containsKey(username)) {
 				System.out.println("Cape from cache");
 				data = proxy.capeCache.get(username);
-			} else {
+			}
+			else {
 				url = "http://" + MineProxy.authServer + "/getcape.php?user=" + username;
 
 				System.out.println("To: " + url);
@@ -157,7 +133,8 @@ public class MineProxyHandler extends Thread {
 
 				data = postRequest(url, new String(postdata), "application/x-www-form-urlencoded");
 
-			} catch(IOException ex) {
+			}
+			catch(IOException ex) {
 				System.err.println("Unable to read POST data from login request: " + ex.getLocalizedMessage());
 			}
 		}
@@ -213,7 +190,8 @@ public class MineProxyHandler extends Thread {
 					// to avoid a resource leak
 					sock.close();
 
-				} else if(method.equals("GET")  || method.equals("POST")) {
+				}
+				else if(method.equals("GET")  || method.equals("POST")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
 					c.setRequestMethod(method);
 					boolean post = method.equals("POST");
@@ -270,7 +248,8 @@ headerloop:
 
 					System.out.println("Piping finished, data size: " + size);
 
-				} else if (method.equals("HEAD")) {
+				}
+				else if (method.equals("HEAD")) {
 					HttpURLConnection c = (HttpURLConnection) u.openConnection(Proxy.NO_PROXY);
 					c.setRequestMethod("HEAD");
 
@@ -294,11 +273,13 @@ headerloop:
 					toClient.writeBytes(res); // TODO Occasional exception socket write error
 					toClient.close();
 					connection.close();
-				} else {
+				}
+				else {
 					System.err.println("UNEXPECTED REQUEST TYPE: " + method);
 				}
 
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 
@@ -323,9 +304,8 @@ headerloop:
 			fromClient.close();
 			toClient.close();
 			connection.close();
-		} 
-		catch (IOException ex) 
-		{
+		}
+		catch (IOException ex) {
 			System.err.println("Error: " + ex.getLocalizedMessage());
 		}
 	}
@@ -380,9 +360,11 @@ headerloop:
 
 			return grabData(in);
 
-		} catch (MalformedURLException ex) {
+		}
+		catch (MalformedURLException ex) {
 			System.err.println("Bad URL in getRequest: " + ex.getLocalizedMessage());
-		} catch (IOException ex) {
+		}
+		catch (IOException ex) {
 			System.err.println("IO error during a getRequest: " + ex.getLocalizedMessage());
 		}
 
@@ -396,7 +378,8 @@ headerloop:
 		try {
 			writer.write(postdata);
 			writer.flush();
-		} catch(IOException e) {
+		}
+		catch(IOException e) {
 			e.printStackTrace();
 		}
 
@@ -425,11 +408,14 @@ headerloop:
 			byte[] data = grabData(new BufferedInputStream(c.getInputStream()));
 			return data;
 
-		} catch(java.net.UnknownHostException ex) {
+		}
+		catch(java.net.UnknownHostException ex) {
 			System.err.println("Unable to resolve remote host, returning null: " + ex.getLocalizedMessage());
-		} catch (MalformedURLException ex) {
+		}
+		catch (MalformedURLException ex) {
 			System.err.println("Bad URL when doing postRequest: " + ex.getLocalizedMessage());
-		} catch (IOException ex) {
+		}
+		catch (IOException ex) {
 			System.err.println("Error: " + ex.getLocalizedMessage());
 		}
 
@@ -445,7 +431,8 @@ headerloop:
 			try {
 				len = in.read(buffer);
 				if(len == -1) break;
-			} catch(IOException e) {
+			}
+			catch(IOException e) {
 				break;
 			}
 			out.write(buffer, 0, len);
@@ -483,7 +470,8 @@ headerloop:
 					}
 
 					i++; // Increment for next round
-				} else {
+				}
+				else {
 					i = 0; // Reset
 				}
 
@@ -491,14 +479,16 @@ headerloop:
 				if (end)
 					break;
 			}
-		} catch (IOException ex) {
+		}
+		catch (IOException ex) {
 			System.err.println("readUntil unable to read from InputStream, endSeq: " + new String(endSequence));
 			System.err.println("Error: " + ex.getLocalizedMessage());
 		}
 
 		try {
 			r = out.toString("UTF-8");
-		} catch (java.io.UnsupportedEncodingException ex) {
+		}
+		catch (java.io.UnsupportedEncodingException ex) {
 			System.err.println("readUntil unable to encode data: " + out.toString());
 			System.err.println("Error: " + ex.getLocalizedMessage());
 		}

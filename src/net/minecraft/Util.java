@@ -112,7 +112,7 @@ public class Util {
 		try {
 			URL url = new URL(targetURL);
 			conn = url.openConnection();
-			
+
 			conn.setUseCaches(false);
 			conn.setDoInput(true);
 			conn.setDoOutput(true);
