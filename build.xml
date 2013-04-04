@@ -1,0 +1,27 @@
+<project name="MineProxy" default="dist" basedir=".">
+	<description>A small program that proxies Minecraft clients and servers.</description>
+
+	<property file="build.properties" />
+
+	<target name="init">
+		<mkdir dir="${build}" />
+		<mkdir dir="${build}/classes" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile the classes">
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}/classes" />
+	</target>
+
+	<target name="dist" depends="compile" description="Generate a JAR file">
+		<mkdir dir="${dist}" />
+		<manifest file="build/MANIFEST.MF">
+			<attribute name="Main-Class" value="${mainclass}" />
+		</manifest>
+		<jar jarfile="${dist}/${output}" manifest="${build}/MANIFEST.MF" basedir="${build}/classes" />
+	</target>
+
+	<target name="clean" description="Clean up compiled files">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+</project>
