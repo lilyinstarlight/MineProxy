@@ -219,19 +219,18 @@ public class MineProxyHandler extends Thread {
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
 headerloop:
 					for(String k : h.keySet()) {
-						if(k == null) continue;
+						if(k == null)
+							continue;
 
 						k = k.trim();
 
-						for(String forbiddenHeader : BLACKLISTED_HEADERS)
-						{
-							if(k.equalsIgnoreCase(forbiddenHeader)) 
+						for(String forbiddenHeader : BLACKLISTED_HEADERS) {
+							if(k.equalsIgnoreCase(forbiddenHeader))
 								continue headerloop;
 						}
 
 						java.util.List<String> vals = h.get(k);
-						for(String v : vals) 
-						{
+						for(String v : vals) {
 							res += k + ": " + v + "\r\n";
 						}
 					}
@@ -262,7 +261,8 @@ headerloop:
 
 					java.util.Map<String, java.util.List<String>> h = c.getHeaderFields();
 					for (String k : h.keySet()) {
-						if(k == null) continue;
+						if(k == null)
+							continue;
 						java.util.List<String> vals = h.get(k);
 						for(String v : vals) {
 							res += k + ": " + v + "\r\n";

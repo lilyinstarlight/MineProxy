@@ -37,9 +37,9 @@ public class Streams {
 				while(true) {
 					try {
 						count = in.read(b);
-						if(count == -1) {
+						if(count == -1)
 							return;
-						}
+
 						out.write(b, 0, count);
 						out.flush();
 					}
