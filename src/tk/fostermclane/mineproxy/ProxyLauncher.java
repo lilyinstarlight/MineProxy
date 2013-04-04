@@ -12,6 +12,7 @@ import java.net.URL;
 import javax.swing.JOptionPane;
 
 import mineshafter.proxy.MineProxy;
+import net.minecraft.Util;
 
 public class ProxyLauncher {
 	public static void main(String[] args) {
@@ -27,8 +28,10 @@ public class ProxyLauncher {
 			}
 		}
 		else {
-			jar = new File(getMinecraftDirectory() + "/minecraft.jar");
-			settingsFile = new File(getMinecraftDirectory() + "/auth.txt");
+			File minecraftdir = Util.getWorkingDirectory();
+
+			jar = new File(minecraftdir + "/minecraft.jar");
+			settingsFile = new File(minecraftdir + "/auth.txt");
 
 			if(!jar.exists()) {
 				try {
@@ -43,7 +46,6 @@ public class ProxyLauncher {
 
 		if(!settingsFile.exists()) {
 			try {
-				settingsFile.getParentFile().mkdirs();
 				settingsFile.createNewFile();
 			}
 			catch(IOException e) {
@@ -93,25 +95,6 @@ public class ProxyLauncher {
 			System.out.println(message);
 		else
 			JOptionPane.showMessageDialog(null, message);
-	}
-
-	private static String getMinecraftDirectory() {
-		String os = System.getProperty("os.name").toLowerCase();
-		String home = System.getProperty("user.home", ".");
-
-		if(os.contains("win")) {
-			String appdata = System.getenv("APPDATA");
-			if(appdata != null)
-				return appdata + "/.minecraft";
-			else
-				return home + "/.minecraft";
-		}
-		else if(os.contains("mac")) {
-			return home + "/Library/Application Support/minecraft";
-		}
-		else {
-			return home + "/.minecraft";
-		}
 	}
 
 	private static void startProxy(String authServer) throws Exception {
