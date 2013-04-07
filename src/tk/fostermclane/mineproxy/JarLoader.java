@@ -19,11 +19,9 @@ public class JarLoader {
 		JarURLConnection conn = (JarURLConnection)new URL("jar", "", jar + "!/").openConnection();
 		String mainclassname = conn.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 
-		Class mainclass = loader.loadClass(mainclassname);
+		Class<?> mainclass = loader.loadClass(mainclassname);
 		Method main = mainclass.getMethod("main", new Class[] { args.getClass() });
 		main.setAccessible(true);
-
-		JarLoader.class.getClassLoader().loadClass("net.minecraft.Util");
 
 		try {
 			main.invoke(mainclass, new Object[] { args });
