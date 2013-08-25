@@ -1,4 +1,4 @@
-package tk.fostermclane.mineproxy;
+package tk.fkmclane.mineproxy;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,6 @@ public class JarLoader {
 			main.invoke(mainclass, new Object[] { args });
 		}
 		catch(IllegalAccessException e) {
-			
 		}
 	}
 }
