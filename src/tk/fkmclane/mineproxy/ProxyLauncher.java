@@ -112,7 +112,7 @@ public class ProxyLauncher {
 			dir = new File(home, "minecraft/");
 		}
 
-		if ((!dir.exists()) && (!dir.mkdirs()))
+		if (!dir.exists() && !dir.mkdirs())
 			alert("Error creating Minecraft directory: " + dir);
 
 		return dir;
