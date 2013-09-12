@@ -9,8 +9,16 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
+	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net(/.*)?");
+	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
+	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
+	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
+	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
+
 	private Socket client;
 	private String auth_server;
 
@@ -65,6 +73,26 @@ public class MineProxyHandler extends Thread {
 	}
 
 	private static URL parseRequest(String request, String auth_server) throws MalformedURLException {
+		Matcher login_matcher = login.matcher(request);
+		if(login_matcher.matches())
+			return new URL("http://" + auth_server + "/" + login_matcher.group(1));
+
+		Matcher joinserver_matcher = joinserver.matcher(request);
+		if(joinserver_matcher.matches())
+			return new URL("http://" + auth_server + "/joinserver.php" + joinserver_matcher.group(1));
+
+		Matcher checkserver_matcher = checkserver.matcher(request);
+		if(checkserver_matcher.matches())
+			return new URL("http://" + auth_server + "/checkserver.php" + checkserver_matcher.group(1));
+
+		Matcher skin_matcher = skin.matcher(request);
+		if(skin_matcher.matches())
+			return new URL("http://" + auth_server + "/getskin.php?user=" + skin_matcher.group(1));
+
+		Matcher cape_matcher = cape.matcher(request);
+		if(cape_matcher.matches())
+			return new URL("http://" + auth_server + "/getcape.php?user=" + cape_matcher.group(1));
+
 		return new URL(request);
 	}
 
