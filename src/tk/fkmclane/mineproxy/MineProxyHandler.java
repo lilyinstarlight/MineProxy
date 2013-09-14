@@ -42,7 +42,8 @@ public class MineProxyHandler extends Thread {
 			BufferedReader remote_in = new BufferedReader(new InputStreamReader(remote.getInputStream()));
 			BufferedWriter remote_out = new BufferedWriter(new OutputStreamWriter(remote.getOutputStream()));
 
-			sendHeaders(remote_out, request, headers);
+			if(!request[0].equals("CONNECT"))
+				sendHeaders(remote_out, request, headers);
 
 			new Pipe(client_in, remote_out);
 			new Pipe(remote_in, client_out);
@@ -106,5 +107,7 @@ public class MineProxyHandler extends Thread {
 			out.write(header + ": " + headers.get(header) + "\r\n");
 
 		out.write("\r\n");
+
+		out.flush();
 	}
 }

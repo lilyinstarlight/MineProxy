@@ -18,12 +18,13 @@ public class Pipe extends Thread {
 		try {
 			char[] buffer = new char[4096];
 			int count;
-			while((count = in.read(buffer)) != -1)
+			while((count = in.read(buffer)) != -1) {
 				out.write(buffer, 0, count);
+				out.flush();
+			}
 		}
 		catch(IOException e) {
-			//Ignore
-			System.err.println("IOException caught while piping: " + e);
+			//Most likely a socket close
 		}
 		finally {
 			try {
