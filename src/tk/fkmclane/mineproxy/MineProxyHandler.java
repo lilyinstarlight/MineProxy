@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
-	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net(/.*)?");
+	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net/(.*)");
 	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
 	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
 	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
@@ -50,7 +50,12 @@ public class MineProxyHandler extends Thread {
 		}
 		catch(Exception e) {
 			System.err.println("Exception caught while proxying request: " + e);
-			//Should probably notify client and server here...
+			//Don't leave the client and server hanging
+			try {
+				client.close();
+				remote.close();
+			}
+			catch(Exception e) {}
 		}
 	}
 
@@ -76,7 +81,7 @@ public class MineProxyHandler extends Thread {
 	private static URL parseRequest(String request, String auth_server) throws MalformedURLException {
 		Matcher login_matcher = login.matcher(request);
 		if(login_matcher.matches())
-			return new URL("http://" + auth_server + "/" + login_matcher.group(1));
+			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
 
 		Matcher joinserver_matcher = joinserver.matcher(request);
 		if(joinserver_matcher.matches())
