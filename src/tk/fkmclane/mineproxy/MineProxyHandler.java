@@ -19,7 +19,7 @@ public class MineProxyHandler extends Thread {
 	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
 	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
 
-	private Socket client;
+	private Socket client, remote;
 	private String auth_server;
 
 	public MineProxyHandler(Socket client, String auth_server) {
@@ -38,7 +38,7 @@ public class MineProxyHandler extends Thread {
 			URL url = parseRequest(request[1], auth_server);
 			request[1] = url.toString();
 
-			Socket remote = new Socket(url.getHost(), url.getProtocol().equals("https") ? 443 : 80);
+			remote = new Socket(url.getHost(), url.getProtocol().equals("https") ? 443 : 80);
 			BufferedReader remote_in = new BufferedReader(new InputStreamReader(remote.getInputStream()));
 			BufferedWriter remote_out = new BufferedWriter(new OutputStreamWriter(remote.getOutputStream()));
 
@@ -55,7 +55,7 @@ public class MineProxyHandler extends Thread {
 				client.close();
 				remote.close();
 			}
-			catch(Exception e) {}
+			catch(Exception ex) {}
 		}
 	}
 
