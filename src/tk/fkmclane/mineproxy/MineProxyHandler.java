@@ -13,11 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
-	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net/(.*)");
-	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
-	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
-	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+?)\\.png");
-	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+?)\\.png");
+	public static final Pattern mojang = Pattern.compile("https://authserver\\.mojang\\.com/(.*)");
+	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
+	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
 
 	private Socket client, remote;
 	private String auth_server;
@@ -79,17 +77,23 @@ public class MineProxyHandler extends Thread {
 	}
 
 	private static URL parseRequest(String request, String auth_server) throws MalformedURLException {
-		Matcher login_matcher = login.matcher(request);
-		if(login_matcher.matches())
-			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
-
-		Matcher joinserver_matcher = joinserver.matcher(request);
-		if(joinserver_matcher.matches())
-			return new URL("http://" + auth_server + "/joinserver.php" + joinserver_matcher.group(1));
-
-		Matcher checkserver_matcher = checkserver.matcher(request);
-		if(checkserver_matcher.matches())
-			return new URL("http://" + auth_server + "/checkserver.php" + checkserver_matcher.group(1));
+		Matcher mojang_matcher = mojang.matcher(request);
+		if(mojang_matcher.matches()) {
+			switch(mojang_matcher.group(1)) {
+				case "authenticate":
+					return new URL("http://" + auth_server + "/authenticate.php");
+				case "refresh":
+					return new URL("http://" + auth_server + "/refresh.php");
+				case "validate":
+					return new URL("http://" + auth_server + "/validate.php");
+				case "invalidate":
+					return new URL("http://" + auth_server + "/invalidate.php");
+				case "signout":
+					return new URL("http://" + auth_server + "/signout.php");
+				default:
+					return new URL(request);
+			}
+		}
 
 		Matcher skin_matcher = skin.matcher(request);
 		if(skin_matcher.matches())
