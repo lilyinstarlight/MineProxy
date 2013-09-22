@@ -38,7 +38,7 @@ public class MineProxyHandler extends Thread {
 			URL url = parseRequest(request[1], auth_server);
 			request[1] = url.toString();
 
-			remote = new Socket(url.getHost(), url.getProtocol().equals("https") ? 443 : 80);
+			remote = new Socket(url.getHost(), url.getPort() < 0 ? url.getProtocol().equals("https") ? 443 : 80 : url.getPort());
 			BufferedReader remote_in = new BufferedReader(new InputStreamReader(remote.getInputStream()));
 			BufferedWriter remote_out = new BufferedWriter(new OutputStreamWriter(remote.getOutputStream()));
 
@@ -79,6 +79,9 @@ public class MineProxyHandler extends Thread {
 	}
 
 	private static URL parseRequest(String request, String auth_server) throws MalformedURLException {
+		if(!request.startsWith("http"))
+			request = "http://" + request;
+
 		Matcher login_matcher = login.matcher(request);
 		if(login_matcher.matches())
 			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
