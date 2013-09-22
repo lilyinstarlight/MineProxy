@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
 	public static final Pattern mojang = Pattern.compile("https://authserver\\.mojang\\.com/(.*)");
+	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
+	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
 	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
 	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
 
@@ -36,7 +38,7 @@ public class MineProxyHandler extends Thread {
 			URL url = parseRequest(request[1], auth_server);
 			request[1] = url.toString();
 
-			remote = new Socket(url.getHost(), url.getProtocol().equals("https") ? 443 : 80);
+			remote = new Socket(url.getHost(), url.getPort() < 0 ? url.getProtocol().equals("https") ? 443 : 80 : url.getPort());
 			BufferedReader remote_in = new BufferedReader(new InputStreamReader(remote.getInputStream()));
 			BufferedWriter remote_out = new BufferedWriter(new OutputStreamWriter(remote.getOutputStream()));
 
@@ -77,6 +79,9 @@ public class MineProxyHandler extends Thread {
 	}
 
 	private static URL parseRequest(String request, String auth_server) throws MalformedURLException {
+		if(!request.startsWith("http"))
+			request = "http://" + request;
+
 		Matcher mojang_matcher = mojang.matcher(request);
 		if(mojang_matcher.matches()) {
 			switch(mojang_matcher.group(1)) {
@@ -94,6 +99,17 @@ public class MineProxyHandler extends Thread {
 					return new URL(request);
 			}
 		}
+		Matcher login_matcher = login.matcher(request);
+		if(login_matcher.matches())
+			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
+
+		Matcher joinserver_matcher = joinserver.matcher(request);
+		if(joinserver_matcher.matches())
+			return new URL("http://" + auth_server + "/joinserver.php" + joinserver_matcher.group(1));
+
+		Matcher checkserver_matcher = checkserver.matcher(request);
+		if(checkserver_matcher.matches())
+			return new URL("http://" + auth_server + "/checkserver.php" + checkserver_matcher.group(1));
 
 		Matcher skin_matcher = skin.matcher(request);
 		if(skin_matcher.matches())
