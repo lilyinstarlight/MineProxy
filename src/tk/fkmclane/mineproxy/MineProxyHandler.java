@@ -13,7 +13,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
+	//Yggdrasil
 	public static final Pattern mojang = Pattern.compile("https://authserver\\.mojang\\.com/(.*)");
+	//Legacy
+	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net/(.*)");
+	//Common
 	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
 	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
 	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
@@ -99,6 +103,7 @@ public class MineProxyHandler extends Thread {
 					return new URL(request);
 			}
 		}
+
 		Matcher login_matcher = login.matcher(request);
 		if(login_matcher.matches())
 			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
