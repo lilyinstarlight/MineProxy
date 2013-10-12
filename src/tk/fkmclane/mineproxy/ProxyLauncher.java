@@ -3,12 +3,12 @@ package tk.fkmclane.mineproxy;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 import javax.swing.JOptionPane;
 
 public class ProxyLauncher {
@@ -17,7 +17,7 @@ public class ProxyLauncher {
 
 		if(args.length > 0) {
 			jar = new File(args[0]);
-			settings_file = new File("auth.properties");
+			settings_file = new File("server.properties");
 
 			if(!jar.exists()) {
 				alert("Error: File not found");
@@ -28,7 +28,7 @@ public class ProxyLauncher {
 			File minecraftdir = getMinecraftDirectory();
 
 			jar = new File(minecraftdir + "/Minecraft.jar");
-			settings_file = new File(minecraftdir + "/auth.txt");
+			settings_file = new File(minecraftdir + "/auth.properties");
 
 			if(!jar.exists()) {
 				try {
@@ -52,9 +52,9 @@ public class ProxyLauncher {
 
 		String auth_server = "";
 		try {
-			BufferedReader settings = new BufferedReader(new FileReader(settings_file));
-			auth_server = settings.readLine();
-			settings.close();
+			Properties settings = new Properties();
+			settings.load(new FileInputStream(settings_file));
+			auth_server = settings.getProperty("auth");
 		}
 		catch(IOException e) {
 			alert("Error reading settings file: " + e);
