@@ -12,6 +12,8 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 
 public class ProxyLauncher {
+	private static final String launcherUrl = "https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar";
+
 	public static void main(String[] args) {
 		File jar, settings_file;
 
@@ -127,7 +129,7 @@ public class ProxyLauncher {
 	}
 
 	private static void downloadLauncher(File output) throws IOException {
-		BufferedInputStream in = new BufferedInputStream(new URL("https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar").openStream());
+		BufferedInputStream in = new BufferedInputStream(new URL(launcherUrl).openStream());
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output), 1024);
 
 		byte[] buffer = new byte[4096];
