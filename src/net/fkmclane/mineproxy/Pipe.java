@@ -1,4 +1,4 @@
-package tk.fkmclane.mineproxy;
+package net.fkmclane.mineproxy;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

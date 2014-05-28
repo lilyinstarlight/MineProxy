@@ -1,4 +1,4 @@
-package tk.fkmclane.mineproxy;
+package net.fkmclane.mineproxy;
 
 import java.io.IOException;
 import java.net.ServerSocket;
