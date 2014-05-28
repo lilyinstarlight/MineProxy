@@ -105,7 +105,7 @@ public class ProxyLauncher {
 			dir = new File(applicationData != null ? applicationData : home, ".minecraft/");
 		}
 		else if(os.contains("mac")) {
-			dir = new File(home, "Library/Application Support/minecraft");
+			dir = new File(home, "Library/Application Support/minecraft/");
 		}
 		else if(os.contains("linux") || os.contains("unix")) {
 			dir = new File(home, ".minecraft/");
