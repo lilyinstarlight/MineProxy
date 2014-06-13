@@ -1,14 +1,14 @@
 package net.fkmclane.mineproxy;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class Pipe extends Thread {
-	BufferedReader in;
-	BufferedWriter out;
+	InputStream in;
+	OutputStream out;
 
-	public Pipe(BufferedReader in, BufferedWriter out) {
+	public Pipe(InputStream in, OutputStream out) {
 		this.in = in;
 		this.out = out;
 		start();
@@ -16,7 +16,7 @@ public class Pipe extends Thread {
 
 	public void run() {
 		try {
-			char[] buffer = new char[4096];
+			byte[] buffer = new byte[4096];
 			int count;
 			while((count = in.read(buffer)) != -1) {
 				out.write(buffer, 0, count);

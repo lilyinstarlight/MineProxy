@@ -13,20 +13,19 @@ public class MineProxy extends Thread {
 		this.auth_server = auth_server;
 		server = new ServerSocket(0);
 		port = server.getLocalPort();
+		setDaemon(true);
 	}
 
 	public void run() {
 		System.setProperty("http.proxyHost", "127.0.0.1");
 		System.setProperty("http.proxyPort", Integer.toString(port));
-		System.setProperty("https.proxyHost", "127.0.0.1");
-		System.setProperty("https.proxyPort", Integer.toString(port));
 
 		while(true) {
 			try {
 				Socket connection = server.accept();
 				new MineProxyHandler(connection, auth_server);
 			}
-			catch(IOException e) {
+			catch(Exception e) {
 				//Ignore
 			}
 		}

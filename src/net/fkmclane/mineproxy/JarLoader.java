@@ -23,6 +23,6 @@ public class JarLoader {
 		Method main = mainclass.getMethod("main", new Class[] { args.getClass() });
 		main.setAccessible(true);
 
-		main.invoke(mainclass, new Object[] { args });
+		main.invoke(null, new Object[] { args });
 	}
 }

@@ -62,9 +62,11 @@ public class ProxyLauncher {
 			alert("Error reading settings file: " + e);
 		}
 
+		MineProxy proxy = null;
 		if(auth_server != null && auth_server.length() > 0) {
 			try {
-				startProxy(auth_server);
+				proxy = new MineProxy(auth_server);
+				proxy.start();
 			}
 			catch(Exception e) {
 				alert("Error starting proxy server: " + e);
@@ -118,14 +120,6 @@ public class ProxyLauncher {
 			alert("Error creating Minecraft directory: " + dir);
 
 		return dir;
-	}
-
-	private static void startProxy(String auth_server) throws Exception {
-		if(auth_server.length() == 0)
-			return;
-
-		MineProxy proxy = new MineProxy(auth_server);
-		proxy.start();
 	}
 
 	private static void downloadLauncher(File output) throws IOException {
