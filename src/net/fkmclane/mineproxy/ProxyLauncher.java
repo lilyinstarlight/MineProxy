@@ -97,7 +97,7 @@ public class ProxyLauncher {
 
 	private static void alert(String message) {
 		if(GraphicsEnvironment.isHeadless())
-			System.out.println(message);
+			System.err.println(message);
 		else
 			JOptionPane.showMessageDialog(null, message);
 	}
