@@ -19,7 +19,12 @@ public class ProxyLauncher {
 
 		if(args.length > 0) {
 			jar = new File(args[0]);
-			settings_file = new File("server.properties");
+
+			String jar_dir = jar.getParent();
+			if(jar_dir == null)
+				jar_dir = ".";
+
+			settings_file = new File(jar_dir + "/server.properties");
 
 			if(!jar.exists()) {
 				alert("Error: File not found");
