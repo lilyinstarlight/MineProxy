@@ -39,29 +39,38 @@ public class MineProxyHandler extends Thread {
 
 	public void run() {
 		try {
+			//Get the streams
 			InputStream client_in = new BufferedInputStream(client.getInputStream());
 			OutputStream client_out = new BufferedOutputStream(client.getOutputStream());
 
+			//Make a reader only for getting the text headers
 			Reader client_reader = new InputStreamReader(client_in);
 
+			//Get the whole HTTP request
 			String[] request_line = getRequestLine(client_reader);
 			Map<String, String> headers = extractHeaders(client_reader);
 
-			URL url = parseURL(new URL(request_line[1]), auth_server);
+			//Parse the URL and change the destination if necessary
+			URL url = parseURL(request_line[1], auth_server);
 
+			//Update the Host header and make the new request only have a path, not a full URL
 			headers.put("Host", url.getHost());
 			request_line[1] = url.getPath();
 			if(request_line[1].length() == 0)
 				request_line[1] = "/";
 
+			//Open a socket to the new host
 			remote = new Socket(url.getHost(), 80);
 			InputStream remote_in = new BufferedInputStream(remote.getInputStream());
 			OutputStream remote_out = new BufferedOutputStream(remote.getOutputStream());
 
+			//Prepare a writer for text headers
 			Writer remote_writer = new OutputStreamWriter(remote_out);
 
+			//Send a whole new request (mostly the same as the incoming)
 			sendRequest(remote_writer, request_line, headers);
 
+			//Pipe the data so each can talk to the other
 			new Pipe(client_in, remote_out);
 			new Pipe(remote_in, client_out);
 		}
@@ -79,11 +88,13 @@ public class MineProxyHandler extends Thread {
 	private static String readLine(Reader in) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		char c;
-		while((c = (char)in.read()) != '\n')
+
+		//Append characters to a string until (the beginning of) a new line is hit
+		while((c = (char)in.read()) != '\r')
 			builder.append(c);
 
-		if(builder.charAt(builder.length() - 1) == '\r')
-			builder.deleteCharAt(builder.length() - 1);
+		//Skip the \n
+		in.skip(1);
 
 		return builder.toString();
 	}
@@ -97,20 +108,18 @@ public class MineProxyHandler extends Thread {
 
 		String header;
 		while((header = readLine(in)).length() != 0) {
-			int delimeter = header.indexOf(": ");
+			int delimeter = header.indexOf(":");
 			if(delimeter == -1)
 				break;
 
-			headers.put(header.substring(0, delimeter), header.substring(delimeter + 1));
+			headers.put(header.substring(0, delimeter).trim(), header.substring(delimeter + 1).trim());
 		}
 
 		return headers;
 	}
 
-	private static URL parseURL(URL url, String auth_server) throws MalformedURLException {
-		String url_string = url.toString();
-
-		Matcher mojang_matcher = mojang.matcher(url_string);
+	private static URL parseURL(String url, String auth_server) throws MalformedURLException {
+		Matcher mojang_matcher = mojang.matcher(url);
 		if(mojang_matcher.matches()) {
 			switch(mojang_matcher.group(1)) {
 				case "authenticate":
@@ -124,44 +133,48 @@ public class MineProxyHandler extends Thread {
 				case "signout":
 					return new URL("http://" + auth_server + "/signout.php");
 				default:
-					return url;
+					return new URL(url);
 			}
 		}
 
-		Matcher login_matcher = login.matcher(url_string);
+		Matcher login_matcher = login.matcher(url);
 		if(login_matcher.matches())
 			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
 
-		Matcher joinserver_matcher = joinserver.matcher(url_string);
+		Matcher joinserver_matcher = joinserver.matcher(url);
 		if(joinserver_matcher.matches())
 			return new URL("http://" + auth_server + "/joinserver.php" + joinserver_matcher.group(1));
 
-		Matcher checkserver_matcher = checkserver.matcher(url_string);
+		Matcher checkserver_matcher = checkserver.matcher(url);
 		if(checkserver_matcher.matches())
 			return new URL("http://" + auth_server + "/checkserver.php" + checkserver_matcher.group(1));
 
-		Matcher skin_matcher = skin.matcher(url_string);
+		Matcher skin_matcher = skin.matcher(url);
 		if(skin_matcher.matches())
 			return new URL("http://" + auth_server + "/getskin.php?user=" + skin_matcher.group(1));
 
-		Matcher cape_matcher = cape.matcher(url_string);
+		Matcher cape_matcher = cape.matcher(url);
 		if(cape_matcher.matches())
 			return new URL("http://" + auth_server + "/getcape.php?user=" + cape_matcher.group(1));
 
-		return url;
+		return new URL(url);
 	}
 
 	private static void sendRequest(Writer out, String[] request_line, Map<String, String> headers) throws IOException {
+		//Write each element in the request line
 		out.write(request_line[0]);
 		for(int i = 1; i < request_line.length; i++)
 			out.write(" " + request_line[i]);
 		out.write("\r\n");
 
+		//And write all of the headers
 		for(String header : headers.keySet())
 			out.write(header + ": " + headers.get(header) + "\r\n");
 
+		//End HTTP request
 		out.write("\r\n");
 
+		//Make sure the writes get there
 		out.flush();
 	}
 }
