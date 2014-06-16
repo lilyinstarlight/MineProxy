@@ -77,7 +77,7 @@ public class MineProxyHandler extends Thread {
 
 				//Make a proxy-agent method
 				Map<String, String> connect_headers = new HashMap<String, String>();
-				connect_headers.put("Proxy-agent", "MineProxy/" + MineProxy.getVersion());
+				connect_headers.put("Proxy-Agent", "MineProxy/" + MineProxy.getVersion());
 
 				//Send a connection established response
 				sendHTTP(client_writer, connect_line, connect_headers);
