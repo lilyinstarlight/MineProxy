@@ -123,15 +123,15 @@ public class MineProxyHandler extends Thread {
 		if(mojang_matcher.matches()) {
 			switch(mojang_matcher.group(1)) {
 				case "authenticate":
-					return new URL("http://" + auth_server + "/authenticate.php");
+					return new URL(auth_server + "/authenticate.php");
 				case "refresh":
-					return new URL("http://" + auth_server + "/refresh.php");
+					return new URL(auth_server + "/refresh.php");
 				case "validate":
-					return new URL("http://" + auth_server + "/validate.php");
+					return new URL(auth_server + "/validate.php");
 				case "invalidate":
-					return new URL("http://" + auth_server + "/invalidate.php");
+					return new URL(auth_server + "/invalidate.php");
 				case "signout":
-					return new URL("http://" + auth_server + "/signout.php");
+					return new URL(auth_server + "/signout.php");
 				default:
 					return new URL(url);
 			}
@@ -139,23 +139,23 @@ public class MineProxyHandler extends Thread {
 
 		Matcher login_matcher = login.matcher(url);
 		if(login_matcher.matches())
-			return new URL("http://" + auth_server + "/" + login_matcher.group(2));
+			return new URL(auth_server + "/" + login_matcher.group(2));
 
 		Matcher joinserver_matcher = joinserver.matcher(url);
 		if(joinserver_matcher.matches())
-			return new URL("http://" + auth_server + "/joinserver.php" + joinserver_matcher.group(1));
+			return new URL(auth_server + "/joinserver.php" + joinserver_matcher.group(1));
 
 		Matcher checkserver_matcher = checkserver.matcher(url);
 		if(checkserver_matcher.matches())
-			return new URL("http://" + auth_server + "/checkserver.php" + checkserver_matcher.group(1));
+			return new URL(auth_server + "/checkserver.php" + checkserver_matcher.group(1));
 
 		Matcher skin_matcher = skin.matcher(url);
 		if(skin_matcher.matches())
-			return new URL("http://" + auth_server + "/getskin.php?user=" + skin_matcher.group(1));
+			return new URL(auth_server + "/getskin.php?user=" + skin_matcher.group(1));
 
 		Matcher cape_matcher = cape.matcher(url);
 		if(cape_matcher.matches())
-			return new URL("http://" + auth_server + "/getcape.php?user=" + cape_matcher.group(1));
+			return new URL(auth_server + "/getcape.php?user=" + cape_matcher.group(1));
 
 		return new URL(url);
 	}
