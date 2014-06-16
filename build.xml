@@ -13,7 +13,7 @@
 	<target name="dist" depends="compile" description="Generate a JAR file">
 		<mkdir dir="dist" />
 		<manifest file="build/MANIFEST.MF">
-			<attribute name="Main-Class" value="net.fkmclane.mineproxy.MineProxy" />
+			<attribute name="Main-Class" value="net.fkmclane.mineproxy.ProxyLauncher" />
 		</manifest>
 		<jar jarfile="dist/MineProxy.jar" manifest="build/MANIFEST.MF" basedir="build/classes" />
 	</target>
