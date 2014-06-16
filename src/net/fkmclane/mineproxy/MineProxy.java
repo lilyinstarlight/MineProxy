@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MineProxy extends Thread {
+	private static final String version = "0.3";
+
 	private String auth_server;
 	private ServerSocket server;
 	private int port;
@@ -17,8 +19,12 @@ public class MineProxy extends Thread {
 	}
 
 	public void run() {
+		String port_string = Integer.toString(port);
+
 		System.setProperty("http.proxyHost", "127.0.0.1");
-		System.setProperty("http.proxyPort", Integer.toString(port));
+		System.setProperty("http.proxyPort", port_string);
+		System.setProperty("https.proxyHost", "127.0.0.1");
+		System.setProperty("https.proxyPort", port_string);
 
 		while(true) {
 			try {
@@ -29,5 +35,9 @@ public class MineProxy extends Thread {
 				//Ignore
 			}
 		}
+	}
+
+	public static String getVersion() {
+		return version;
 	}
 }

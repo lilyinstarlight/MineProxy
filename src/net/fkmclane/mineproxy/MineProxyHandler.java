@@ -53,22 +53,42 @@ public class MineProxyHandler extends Thread {
 			//Parse the URL and change the destination if necessary
 			URL url = parseURL(request_line[1], auth_server);
 
-			//Update the Host header and make the new request only have a path, not a full URL
-			headers.put("Host", url.getHost());
-			request_line[1] = url.getPath();
-			if(request_line[1].length() == 0)
-				request_line[1] = "/";
+			//For the CONNECT method (HTTPS tunneling), don't bother with changing around request
+			if(!request_line[0].equals("CONNECT")) {
+				//Update the Host header and make the new request only have a path, not a full URL
+				headers.put("Host", url.getHost());
+				request_line[1] = url.getPath();
+				if(request_line[1].length() == 0)
+					request_line[1] = "/";
+			}
 
 			//Open a socket to the new host
-			remote = new Socket(url.getHost(), 80);
+			remote = new Socket(url.getHost(), url.getPort() == -1 ? 80 : url.getPort());
 			InputStream remote_in = new BufferedInputStream(remote.getInputStream());
 			OutputStream remote_out = new BufferedOutputStream(remote.getOutputStream());
 
-			//Prepare a writer for text headers
-			Writer remote_writer = new OutputStreamWriter(remote_out);
+			//For the CONNECT method, simply connect to the server and tell the client
+			if(request_line[0].equals("CONNECT")) {
+				//Prepare a writer to notify the client
+				Writer client_writer = new OutputStreamWriter(client_out);
 
-			//Send a whole new request (mostly the same as the incoming)
-			sendRequest(remote_writer, request_line, headers);
+				//Prepare response line
+				String[] connect_line = { "HTTP/1.1", "200", "Connection Established" };
+
+				//Make a proxy-agent method
+				Map<String, String> connect_headers = new HashMap<String, String>();
+				connect_headers.put("Proxy-agent", "MineProxy/" + MineProxy.getVersion());
+
+				//Send a connection established response
+				sendHTTP(client_writer, connect_line, connect_headers);
+			}
+			else {
+				//Prepare a writer for text headers
+				Writer remote_writer = new OutputStreamWriter(remote_out);
+
+				//Send a whole new request (mostly the same as the incoming)
+				sendHTTP(remote_writer, request_line, headers);
+			}
 
 			//Pipe the data so each can talk to the other
 			new Pipe(client_in, remote_out);
@@ -160,11 +180,11 @@ public class MineProxyHandler extends Thread {
 		return new URL(url);
 	}
 
-	private static void sendRequest(Writer out, String[] request_line, Map<String, String> headers) throws IOException {
+	private static void sendHTTP(Writer out, String[] line, Map<String, String> headers) throws IOException {
 		//Write each element in the request line
-		out.write(request_line[0]);
-		for(int i = 1; i < request_line.length; i++)
-			out.write(" " + request_line[i]);
+		out.write(line[0]);
+		for(int i = 1; i < line.length; i++)
+			out.write(" " + line[i]);
 		out.write("\r\n");
 
 		//And write all of the headers
