@@ -19,14 +19,14 @@ import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
 	//Yggdrasil
-	public static final Pattern mojang = Pattern.compile("http://authserver\\.mojang\\.com/(.*)");
+	public static final Pattern mojang = Pattern.compile("http(s)?://authserver\\.mojang\\.com/(.*)");
 	//Legacy
-	public static final Pattern login = Pattern.compile("http://login\\.minecraft\\.net/(.*)");
+	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net/(.*)");
 	//Common
-	public static final Pattern joinserver = Pattern.compile("http://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
-	public static final Pattern checkserver = Pattern.compile("http://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
-	public static final Pattern skin = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
-	public static final Pattern cape = Pattern.compile("http://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
+	public static final Pattern joinserver = Pattern.compile("http(s)?://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
+	public static final Pattern checkserver = Pattern.compile("http(s)?://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
+	public static final Pattern skin = Pattern.compile("http(s)?://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
+	public static final Pattern cape = Pattern.compile("http(s)?://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
 
 	private Socket client, remote;
 	private String auth_server;
