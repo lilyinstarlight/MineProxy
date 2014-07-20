@@ -63,7 +63,7 @@ public class MineProxyHandler extends Thread {
 			}
 
 			//Open a socket to the new host
-			remote = new Socket(url.getHost(), url.getPort() == -1 ? 80 : url.getPort());
+			remote = new Socket(url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort());
 			InputStream remote_in = new BufferedInputStream(remote.getInputStream());
 			OutputStream remote_out = new BufferedOutputStream(remote.getOutputStream());
 
