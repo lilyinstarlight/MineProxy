@@ -23,8 +23,12 @@ public class MineProxy extends Thread {
 
 		System.setProperty("http.proxyHost", "127.0.0.1");
 		System.setProperty("http.proxyPort", port_string);
+		System.setProperty("http.proxySet", "true");
 		System.setProperty("https.proxyHost", "127.0.0.1");
 		System.setProperty("https.proxyPort", port_string);
+		System.setProperty("https.proxySet", "true");
+
+		System.setProperty("java.protocol.handler.pkgs", "net.fkmclane.mineproxy.protocol");
 
 		while(true) {
 			try {
