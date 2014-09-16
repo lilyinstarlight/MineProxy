@@ -101,7 +101,7 @@ public class MineProxyHandler extends Thread {
 				client.close();
 				remote.close();
 			}
-			catch(IOException ex) {}
+			catch(Exception ex) {}
 		}
 	}
 

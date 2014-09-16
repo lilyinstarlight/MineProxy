@@ -8,7 +8,7 @@ import sun.net.www.protocol.http.HttpURLConnection;
 
 public class DelegateHttpURLConnection extends HttpURLConnection {
 	protected DelegateHttpURLConnection(URL url, Proxy proxy, Handler handler) {
-		super(url, proxy,handler);
+		super(url, proxy, handler);
 	}
 
 	protected void setNewClient(URL url) throws IOException {

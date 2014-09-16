@@ -23,7 +23,9 @@ public class FakeHttpsURLConnection extends HttpsURLConnection {
 
 	FakeHttpsURLConnection(URL url, Proxy proxy, Handler handler) throws IOException {
 		super(url);
-		delegate = new DelegateHttpURLConnection(url, proxy, handler);
+		delegate = new DelegateHttpURLConnection(url, null, handler);
+		if(System.getProperty("http.proxySet").equals("true"))
+			setProxiedClient(url, System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
 	}
 
 	protected FakeHttpsURLConnection(URL url) throws IOException {
