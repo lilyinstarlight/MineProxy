@@ -4,6 +4,7 @@
 	<target name="init">
 		<mkdir dir="build" />
 		<mkdir dir="build/classes" />
+		<mkdir dir="dist" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile the classes">
@@ -11,7 +12,6 @@
 	</target>
 
 	<target name="dist" depends="compile" description="Generate a JAR file">
-		<mkdir dir="dist" />
 		<manifest file="build/MANIFEST.MF">
 			<attribute name="Main-Class" value="net.fkmclane.mineproxy.ProxyLauncher" />
 		</manifest>
