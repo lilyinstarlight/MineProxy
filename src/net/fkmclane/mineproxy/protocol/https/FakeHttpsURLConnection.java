@@ -26,7 +26,7 @@ public class FakeHttpsURLConnection extends HttpsURLConnection {
 		//We modify the url in the call because super must be first
 		super(url = new URL("http", url.getHost(), url.getPort(), url.getFile()));
 		delegate = new DelegateHttpURLConnection(url, null, handler);
-		if(System.getProperty("http.proxySet") == "true")
+		if(System.getProperty("http.proxySet").equals("true"))
 			setProxiedClient(url, System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
 	}
 

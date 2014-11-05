@@ -167,20 +167,19 @@ public class MineProxyHandler extends Thread {
 	private static URL parseURL(String url, String auth_server) throws MalformedURLException {
 		Matcher mojang_matcher = mojang.matcher(url);
 		if(mojang_matcher.matches()) {
-			switch(mojang_matcher.group(1)) {
-				case "authenticate":
-					return new URL(auth_server + "/authenticate.php");
-				case "refresh":
-					return new URL(auth_server + "/refresh.php");
-				case "validate":
-					return new URL(auth_server + "/validate.php");
-				case "invalidate":
-					return new URL(auth_server + "/invalidate.php");
-				case "signout":
-					return new URL(auth_server + "/signout.php");
-				default:
-					return new URL(url);
-			}
+			String action = mojang_matcher.group(1);
+			if(action.equals("authenticate"))
+				return new URL(auth_server + "/authenticate.php");
+			else if(action.equals("refresh"))
+				return new URL(auth_server + "/refresh.php");
+			else if(action.equals("validate"))
+				return new URL(auth_server + "/validate.php");
+			else if(action.equals("invalidate"))
+				return new URL(auth_server + "/invalidate.php");
+			else if(action.equals("signout"))
+				return new URL(auth_server + "/signout.php");
+			else
+				return new URL(url);
 		}
 
 		Matcher login_matcher = login.matcher(url);
