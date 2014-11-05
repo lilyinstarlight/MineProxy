@@ -91,7 +91,6 @@ public class MineProxyHandler extends Thread {
 		}
 		catch(Exception e) {
 			System.err.println("Exception caught while proxying request: " + e);
-			e.printStackTrace();
 			//Don't leave the client and server hanging
 			try {
 				client.close();
