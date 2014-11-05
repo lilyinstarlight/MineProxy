@@ -3,30 +3,34 @@ package net.fkmclane.mineproxy;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
+	public static final Charset http_charset = Charset.forName("ISO-8859-1");
+
 	//Yggdrasil
-	public static final Pattern mojang = Pattern.compile("http(s)?://authserver\\.mojang\\.com/(.*)");
+	public static final Pattern mojang = Pattern.compile("http(?:s?)://authserver\\.mojang\\.com/(.*)");
 	//Legacy
-	public static final Pattern login = Pattern.compile("http(s)?://login\\.minecraft\\.net/(.*)");
+	public static final Pattern login = Pattern.compile("http(?:s?)://login\\.minecraft\\.net/(.*)");
 	//Common
-	public static final Pattern joinserver = Pattern.compile("http(s)?://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
-	public static final Pattern checkserver = Pattern.compile("http(s)?://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
-	public static final Pattern skin = Pattern.compile("http(s)?://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
-	public static final Pattern cape = Pattern.compile("http(s)?://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
+	public static final Pattern joinserver = Pattern.compile("http(?:s?)://session\\.minecraft\\.net/game/joinserver\\.jsp(.*)");
+	public static final Pattern checkserver = Pattern.compile("http(?:s?)://session\\.minecraft\\.net/game/checkserver\\.jsp(.*)");
+	public static final Pattern skin = Pattern.compile("http(?:s?)://skins\\.minecraft\\.net/MinecraftSkins/(.+)\\.png");
+	public static final Pattern cape = Pattern.compile("http(?:s?)://skins\\.minecraft\\.net/MinecraftCloaks/(.+)\\.png");
 
 	private Socket client, remote;
 	private String auth_server;
@@ -43,12 +47,9 @@ public class MineProxyHandler extends Thread {
 			InputStream client_in = new BufferedInputStream(client.getInputStream());
 			OutputStream client_out = new BufferedOutputStream(client.getOutputStream());
 
-			//Make a reader only for getting the text headers
-			Reader client_reader = new InputStreamReader(client_in);
-
 			//Get the whole HTTP request
-			String[] request_line = getRequestLine(client_reader);
-			Map<String, String> headers = extractHeaders(client_reader);
+			String[] request_line = getRequestLine(client_in);
+			Map<String, String> headers = extractHeaders(client_in);
 
 			//Parse the URL and change the destination if necessary
 			URL url = parseURL(request_line[1], auth_server);
@@ -69,25 +70,19 @@ public class MineProxyHandler extends Thread {
 
 			//For the CONNECT method, simply connect to the server and tell the client
 			if(request_line[0].equals("CONNECT")) {
-				//Prepare a writer to notify the client
-				Writer client_writer = new OutputStreamWriter(client_out);
-
 				//Prepare response line
 				String[] connect_line = { "HTTP/1.1", "200", "Connection Established" };
 
-				//Make a proxy-agent method
+				//Make headers and add Proxy-Agent
 				Map<String, String> connect_headers = new HashMap<String, String>();
 				connect_headers.put("Proxy-Agent", "MineProxy/" + MineProxy.getVersion());
 
-				//Send a connection established response
-				sendHTTP(client_writer, connect_line, connect_headers);
+				//Send a Connection Established response
+				sendHTTP(client_out, connect_line, connect_headers);
 			}
 			else {
-				//Prepare a writer for text headers
-				Writer remote_writer = new OutputStreamWriter(remote_out);
-
 				//Send a whole new request (mostly the same as the incoming)
-				sendHTTP(remote_writer, request_line, headers);
+				sendHTTP(remote_out, request_line, headers);
 			}
 
 			//Pipe the data so each can talk to the other
@@ -96,6 +91,7 @@ public class MineProxyHandler extends Thread {
 		}
 		catch(Exception e) {
 			System.err.println("Exception caught while proxying request: " + e);
+			e.printStackTrace();
 			//Don't leave the client and server hanging
 			try {
 				client.close();
@@ -105,34 +101,64 @@ public class MineProxyHandler extends Thread {
 		}
 	}
 
-	private static String readLine(Reader in) throws IOException {
+	private static String readLine(InputStream in) throws IOException {
+		CharsetDecoder decoder = http_charset.newDecoder();
 		StringBuilder builder = new StringBuilder();
-		char c;
 
-		//Append characters to a string until (the beginning of) a new line is hit
-		while((c = (char)in.read()) != '\r')
+		//ByteBuffer and CharBuffer for decoding
+		ByteBuffer in_buf = ByteBuffer.allocate(1);
+		CharBuffer out_buf = CharBuffer.allocate(1);
+		int b;
+		while((b = in.read()) != -1) {
+			//Put the byte in the ByteBuffer
+			in_buf.put(0, (byte)b);
+
+			//Rewind buffers
+			in_buf.rewind();
+			out_buf.rewind();
+
+			//Decode the byte
+			decoder.decode(in_buf, out_buf, true);
+
+			//Get the character
+			char c = out_buf.get(0);
+
+			//Ignore \r and break on \n
+			if(c == '\r')
+				continue;
+			if(c == '\n')
+				break;
+
 			builder.append(c);
-
-		//Skip the \n
-		in.skip(1);
+		}
 
 		return builder.toString();
 	}
 
-	private static String[] getRequestLine(Reader in) throws IOException {
-		return readLine(in).split(" ");
+	private static String[] getRequestLine(InputStream in) throws IOException, ProtocolException {
+		String[] request_line = readLine(in).split(" ", 3);
+		if(request_line.length != 3)
+			throw new ProtocolException("Malformed HTTP request line");
+		return request_line;
 	}
 
-	private static HashMap<String, String> extractHeaders(Reader in) throws IOException {
+	private static HashMap<String, String> extractHeaders(InputStream in) throws IOException, ProtocolException {
 		HashMap<String, String> headers = new HashMap<String, String>();
 
 		String header;
 		while((header = readLine(in)).length() != 0) {
 			int delimeter = header.indexOf(":");
-			if(delimeter == -1)
-				break;
 
-			headers.put(header.substring(0, delimeter).trim(), header.substring(delimeter + 1).trim());
+			if(delimeter == -1)
+				throw new ProtocolException("Malformed HTTP header");
+
+			String key = header.substring(0, delimeter).trim();
+			String val = header.substring(delimeter + 1).trim();
+
+			if(key.isEmpty() || val.isEmpty())
+				throw new ProtocolException("Malformed HTTP header");
+
+			headers.put(key, val);
 		}
 
 		return headers;
@@ -180,19 +206,23 @@ public class MineProxyHandler extends Thread {
 		return new URL(url);
 	}
 
-	private static void sendHTTP(Writer out, String[] line, Map<String, String> headers) throws IOException {
+	private static void writeLine(OutputStream out, String line) throws IOException {
+		CharsetEncoder encoder = http_charset.newEncoder();
+
+		//Write an encoded line ending in \r\n
+		out.write(encoder.encode(CharBuffer.wrap(line + "\r\n")).array());
+	}
+
+	private static void sendHTTP(OutputStream out, String[] request, Map<String, String> headers) throws IOException {
 		//Write each element in the request line
-		out.write(line[0]);
-		for(int i = 1; i < line.length; i++)
-			out.write(" " + line[i]);
-		out.write("\r\n");
+		writeLine(out, request[0] + " " + request[1] + " " + request[2]);
 
 		//And write all of the headers
 		for(String header : headers.keySet())
-			out.write(header + ": " + headers.get(header) + "\r\n");
+			writeLine(out, header + ": " + headers.get(header));
 
 		//End HTTP request
-		out.write("\r\n");
+		writeLine(out, "");
 
 		//Make sure the writes get there
 		out.flush();

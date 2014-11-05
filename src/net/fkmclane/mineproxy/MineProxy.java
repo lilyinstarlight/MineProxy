@@ -1,6 +1,7 @@
 package net.fkmclane.mineproxy;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,7 +14,7 @@ public class MineProxy extends Thread {
 
 	public MineProxy(String auth_server) throws IOException {
 		this.auth_server = auth_server;
-		server = new ServerSocket(0);
+		server = new ServerSocket(0, 20, InetAddress.getLoopbackAddress());
 		port = server.getLocalPort();
 		setDaemon(true);
 	}

@@ -14,6 +14,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class FakeHttpsURLConnection extends HttpsURLConnection {
 	private boolean connected;
+	URL url;
 
 	protected DelegateHttpURLConnection delegate;
 
@@ -22,14 +23,15 @@ public class FakeHttpsURLConnection extends HttpsURLConnection {
 	}
 
 	FakeHttpsURLConnection(URL url, Proxy proxy, Handler handler) throws IOException {
-		super(url);
+		//We modify the url in the call because super must be first
+		super(url = new URL("http", url.getHost(), url.getPort(), url.getFile()));
 		delegate = new DelegateHttpURLConnection(url, null, handler);
-		if(System.getProperty("http.proxySet").equals("true"))
+		if(System.getProperty("http.proxySet") == "true")
 			setProxiedClient(url, System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
 	}
 
 	protected FakeHttpsURLConnection(URL url) throws IOException {
-		super(url);
+		this(url, null, null);
 	}
 
 	protected void setNewClient(URL url) throws IOException {

@@ -31,9 +31,7 @@ public class Pipe extends Thread {
 				in.close();
 				out.close();
 			}
-			catch(IOException e) {
-				//Ignore
-			}
+			catch(Exception e) {}
 		}
 	}
 }
