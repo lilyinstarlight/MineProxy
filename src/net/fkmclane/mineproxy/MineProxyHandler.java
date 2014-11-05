@@ -58,7 +58,7 @@ public class MineProxyHandler extends Thread {
 			if(!request_line[0].equals("CONNECT")) {
 				//Update the Host header and make the new request only have a path, not a full URL
 				headers.put("Host", url.getHost());
-				request_line[1] = url.getPath();
+				request_line[1] = url.getFile();
 				if(request_line[1].length() == 0)
 					request_line[1] = "/";
 			}
@@ -81,6 +81,9 @@ public class MineProxyHandler extends Thread {
 				sendHTTP(client_out, connect_line, connect_headers);
 			}
 			else {
+				//Make sure no persistent connections mess things up
+				headers.put("Connection", "close");
+
 				//Send a whole new request (mostly the same as the incoming)
 				sendHTTP(remote_out, request_line, headers);
 			}
