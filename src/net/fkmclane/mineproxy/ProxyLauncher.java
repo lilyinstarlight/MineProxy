@@ -97,7 +97,7 @@ public class ProxyLauncher {
 
 	private static void alert(String message) {
 		if(GraphicsEnvironment.isHeadless())
-			System.err.println(message);
+			System.err.println("MineProxy: " + message);
 		else
 			JOptionPane.showMessageDialog(null, message);
 	}
@@ -129,7 +129,7 @@ public class ProxyLauncher {
 
 	private static void downloadLauncher(File output) throws IOException {
 		BufferedInputStream in = new BufferedInputStream(new URL(launcherUrl).openStream());
-		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output), 1024);
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output));
 
 		byte[] buffer = new byte[4096];
 		int count;

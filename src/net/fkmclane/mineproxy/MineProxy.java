@@ -28,6 +28,8 @@ public class MineProxy extends Thread {
 
 		System.setProperty("java.protocol.handler.pkgs", "net.fkmclane.mineproxy.protocol");
 
+		System.err.println("MineProxy: Started proxy on http://localhost:" + port_string);
+
 		while(true) {
 			try {
 				Socket connection = server.accept();
