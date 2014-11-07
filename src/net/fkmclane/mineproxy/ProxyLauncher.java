@@ -90,7 +90,7 @@ public class ProxyLauncher {
 			JarLoader.run(jar, jarargs);
 		}
 		catch(Exception e) {
-			alert("Error starting jar: " + e);
+			alert("Error running jar: " + e);
 			System.exit(1);
 		}
 	}
