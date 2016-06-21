@@ -20,6 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MineProxyHandler extends Thread {
+	public static final String version = "0.3";
+
 	public static final Charset http_charset = Charset.forName("ISO-8859-1");
 
 	//Yggdrasil
@@ -75,7 +77,7 @@ public class MineProxyHandler extends Thread {
 
 				//Make headers and add Proxy-Agent
 				Map<String, String> connect_headers = new HashMap<String, String>();
-				connect_headers.put("Proxy-Agent", "MineProxy/" + MineProxy.getVersion());
+				connect_headers.put("Proxy-Agent", "MineProxy/" + version);
 
 				//Send a Connection Established response
 				sendHTTP(client_out, connect_line, connect_headers);
