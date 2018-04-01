@@ -56,10 +56,7 @@ public class MineProxyHandler extends Thread {
 
 	private static final Charset http_charset = Charset.forName("ISO-8859-1");
 
-	private static final Pattern mojang = Pattern.compile("http[s]?://authserver\\.mojang\\.com(.*)");
-	private static final Pattern session = Pattern.compile("http[s]?://session\\.minecraft\\.net(.*)");
-	private static final Pattern checkserver = Pattern.compile("http[s]?://session\\.minecraft\\.net(.*)");
-	private static final Pattern skin = Pattern.compile("http[s]?://skins\\.minecraft\\.net(.*)");
+	private static final Pattern mojang = Pattern.compile("http[s]?://(?:authserver\\.mojang\\.com|api\\.mojang\\.com|sessionserver\\.mojang\\.com|textures\\.minecraft\\.net)(.*)");
 
 	private Socket client, remote;
 	private CertGen gen;
@@ -244,6 +241,7 @@ public class MineProxyHandler extends Thread {
 			Map<String, String> headers = extractHeaders(client_in);
 
 			URL url = parseURL((sock_port == 80 ? "http://" : "https://") + headers.get("Host") + request[1], auth_server);
+			System.err.println("MineProxy: Rewrote " + (sock_port == 80 ? "http://" : "https://") + headers.get("Host") + request[1] + " to " + url.toString());
 
 			headers.put("Host", url.getHost());
 			request[1] = url.getFile();
@@ -348,14 +346,6 @@ public class MineProxyHandler extends Thread {
 		Matcher mojang_matcher = mojang.matcher(url);
 		if(mojang_matcher.matches())
 			return new URL(auth_server + mojang_matcher.group(1));
-
-		Matcher session_matcher = session.matcher(url);
-		if(session_matcher.matches())
-			return new URL(auth_server + session_matcher.group(1));
-
-		Matcher skin_matcher = skin.matcher(url);
-		if(skin_matcher.matches())
-			return new URL(auth_server + skin_matcher.group(1));
 
 		return new URL(url);
 	}
