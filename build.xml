@@ -1,25 +1,30 @@
-<project name="MineProxy" default="dist" basedir=".">
-	<description>A small program that proxies Minecraft clients and servers.</description>
+<project name="MineProxy" default="jar">
+	<description>A small program that proxies Minecraft clients and servers to an alternative authentication url.</description>
 
-	<target name="init">
-		<mkdir dir="build" />
-		<mkdir dir="build/classes" />
-		<mkdir dir="dist" />
+	<target name="compile">
+		<mkdir dir="build"/>
+		<javac includeantruntime="false" srcdir="src" destdir="build">
+			<classpath location="lib/bcprov-jdk15on-159.jar"/>
+			<classpath location="lib/bcpkix-jdk15on-159.jar"/>
+		</javac>
 	</target>
 
-	<target name="compile" depends="init" description="Compile the classes">
-		<javac includeantruntime="false" target="1.7" source="1.7" srcdir="src" destdir="build/classes" />
+	<target name="jar" depends="compile">
+		<mkdir dir="jar"/>
+		<jar jarfile="jar/MineProxy.jar" basedir="build">
+			<zipfileset src="lib/bcprov-jdk15on-159.jar"/>
+			<zipfileset src="lib/bcpkix-jdk15on-159.jar"/>
+			<manifest>
+				<attribute name="Main-Class" value="net.fkmclane.mineproxy.ProxyLauncher"/>
+			</manifest>
+		</jar>
 	</target>
 
-	<target name="dist" depends="compile" description="Generate a JAR file">
-		<manifest file="build/MANIFEST.MF">
-			<attribute name="Main-Class" value="net.fkmclane.mineproxy.ProxyLauncher" />
-		</manifest>
-		<jar jarfile="dist/MineProxy.jar" manifest="build/MANIFEST.MF" basedir="build/classes" />
+	<target name="run" depends="jar">
+		<java jar="jar/MineProxy.jar" fork="true"/>
 	</target>
 
-	<target name="clean" description="Clean up compiled files">
-		<delete dir="build" />
-		<delete dir="dist" />
+	<target name="clean">
+		<delete dir="build"/>
 	</target>
 </project>

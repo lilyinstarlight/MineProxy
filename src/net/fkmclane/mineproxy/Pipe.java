@@ -11,20 +11,20 @@ public class Pipe extends Thread {
 	public Pipe(InputStream in, OutputStream out) {
 		this.in = in;
 		this.out = out;
-		start();
 	}
 
 	public void run() {
 		try {
+			// write 4096 byte blocks at a time
 			byte[] buffer = new byte[4096];
-			int count;
+			int count = 0;
 			while((count = in.read(buffer)) != -1) {
 				out.write(buffer, 0, count);
 				out.flush();
 			}
 		}
 		catch(IOException e) {
-			//Most likely a socket close
+			// most likely a socket close
 		}
 		finally {
 			try {

@@ -17,16 +17,16 @@ public class JarLoader {
 	public static void run(URL jar, String[] args) throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		ClassLoader loader = ClassLoader.getSystemClassLoader();
 
-		//Add jar to classpath
+		// add jar to classpath
 		Method add_url = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
 		add_url.setAccessible(true);
 		add_url.invoke(loader, new Object[] { jar });
 
-		//Get main class
+		// get main class
 		JarURLConnection jarconn = (JarURLConnection)new URL("jar", "", jar + "!/").openConnection();
 		Class<?> mainclass = loader.loadClass(jarconn.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS));
 
-		//Invoke main method in main class
+		// invoke main method in main class
 		Method main = mainclass.getDeclaredMethod("main", new Class[] { String[].class });
 		main.setAccessible(true);
 		main.invoke(null, new Object[] { args });
