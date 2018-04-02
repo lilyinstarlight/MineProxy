@@ -14,7 +14,8 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 
 public class ProxyLauncher {
-	private static final String launcherUrl = "https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar";
+	private static final String launcher_url = "https://s3.amazonaws.com/Minecraft.Download/launcher/Minecraft.jar";
+	private static final String launcher_dir = "minecraft";
 
 	public static void main(String[] args) {
 		File jar, settings_file, ca_cert_file, ca_key_file;
@@ -42,7 +43,7 @@ public class ProxyLauncher {
 			File minecraft_dir = getMinecraftDirectory();
 
 			// get files relative to minecraft directory
-			jar = new File(minecraft_dir + "/minecraft.jar");
+			jar = new File(minecraft_dir + "/" + launcher_dir + ".jar");
 			settings_file = new File(minecraft_dir + "/auth.properties");
 			ca_cert_file = new File(minecraft_dir + "/ca.crt");
 			ca_key_file = new File(minecraft_dir + "/ca.key");
@@ -50,7 +51,7 @@ public class ProxyLauncher {
 			// download launcher if necessary
 			if(!jar.exists()) {
 				try {
-					downloadLauncher(jar);
+					downloadLauncher(launcher_url, jar);
 				}
 				catch(IOException e) {
 					alert("Error downloading launcher: " + e);
@@ -155,16 +156,16 @@ public class ProxyLauncher {
 		// get directory based on operating system
 		if(os.contains("win")) {
 			String applicationData = System.getenv("APPDATA");
-			dir = new File(applicationData != null ? applicationData : home, ".minecraft\\");
+			dir = new File(applicationData != null ? applicationData : home, "." + launcher_dir + "\\");
 		}
 		else if(os.contains("mac")) {
-			dir = new File(home, "Library/Application Support/minecraft/");
+			dir = new File(home, "Library/Application Support/" + launcher_dir + "/");
 		}
 		else if(os.contains("linux") || os.contains("unix")) {
-			dir = new File(home, ".minecraft/");
+			dir = new File(home, "." + launcher_dir + "/");
 		}
 		else {
-			dir = new File(home, "minecraft/");
+			dir = new File(home, launcher_dir + "/");
 		}
 
 		if (!dir.exists() && !dir.mkdirs())
@@ -238,9 +239,9 @@ public class ProxyLauncher {
 		}
 	}
 
-	private static void downloadLauncher(File output) throws IOException {
+	private static void downloadLauncher(String launcher, File output) throws IOException {
 		// open stream to URL
-		BufferedInputStream in = new BufferedInputStream(new URL(launcherUrl).openStream());
+		BufferedInputStream in = new BufferedInputStream(new URL(launcher).openStream());
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(output));
 
 		// write 4096 byte blocks at a time
