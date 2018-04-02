@@ -218,11 +218,9 @@ public class MineProxyHandler extends Thread {
 				return;
 			}
 
-			SSLContext context = null;
-
 			if (sock_port == 443) {
 				// generate certificate
-				context = gen.generateSSLContext(new String[] { "*.*", "*.*.*" });
+				SSLContext context = gen.generateSSLContext(new String[] { "*.*", "*.*.*" });
 
 				SSLSocket client_ssl = (SSLSocket)context.getSocketFactory().createSocket(client, sock_addr, sock_port, true);
 				client_ssl.setUseClientMode(false);
@@ -250,8 +248,11 @@ public class MineProxyHandler extends Thread {
 
 			remote = new Socket(url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort());
 
-			if (sock_port == 443)
+			if (url.getProtocol().equals("https")) {
+				SSLContext context = gen.generatePlainContext();
+
 				remote = context.getSocketFactory().createSocket(remote, url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort(), true);
+			}
 
 			InputStream remote_in = new BufferedInputStream(remote.getInputStream());
 			OutputStream remote_out = new BufferedOutputStream(remote.getOutputStream());
@@ -265,6 +266,7 @@ public class MineProxyHandler extends Thread {
 			pipe_remote.start();
 		}
 		catch (Exception e) {
+			e.printStackTrace();
 			System.err.println("MineProxy: Exception caught while proxying request: " + e);
 			// do not leave the client and server hanging
 			try {

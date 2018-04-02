@@ -235,6 +235,14 @@ public class CertGen {
 		return store;
 	}
 
+	public SSLContext generatePlainContext() throws Exception {
+		// create a new SSLContext
+		SSLContext context = SSLContext.getInstance("TLS");
+		context.init(null, null, rand);
+
+		return context;
+	}
+
 	public SSLContext generateSSLContext(String[] names) throws Exception {
 		// generate keystore for certificate
 		KeyStore store = generateCertificate(names);
