@@ -1,22 +1,18 @@
 package net.fkmclane.mineproxy;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.File;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
-import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyManagementException;
 import java.security.KeyPair;
-import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -32,23 +28,15 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
-import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Date;
-import java.util.Random;
 
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
-
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -58,9 +46,10 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -84,7 +73,7 @@ public class CertGen {
 	private KeyPairGenerator gen;
 	private SecureRandom rand;
 
-	public CertGen(File ca_cert_file, File ca_key_file) throws Exception {
+	public CertGen(File ca_cert_file, File ca_key_file) throws CertificateException, FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, OperatorCreationException, CertificateEncodingException, KeyStoreException {
 		// initialize generators
 		gen = KeyPairGenerator.getInstance("RSA");
 		rand = SecureRandom.getInstance("SHA1PRNG");
@@ -97,7 +86,7 @@ public class CertGen {
 			generateCertificateAuthority(ca_cert_file, ca_key_file);
 	}
 
-	public void loadCertificateAuthority(File ca_cert_file, File ca_key_file) throws Exception {
+	public void loadCertificateAuthority(File ca_cert_file, File ca_key_file) throws CertificateException, FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		// read certificate from file
 		ca_cert = (X509Certificate)CertificateFactory.getInstance("X.509").generateCertificate(new FileInputStream(ca_cert_file));
 
@@ -111,7 +100,7 @@ public class CertGen {
 		ca_key = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(key_data));
 	}
 
-	public KeyStore generateCertificateAuthority(File ca_cert_file, File ca_key_file) throws Exception {
+	public KeyStore generateCertificateAuthority(File ca_cert_file, File ca_key_file) throws IOException, OperatorCreationException, CertificateException, CertificateEncodingException, KeyStoreException, NoSuchAlgorithmException {
 		// inspired by LittleProxy-mitm
 
 		// generate a new set of keys
@@ -179,7 +168,7 @@ public class CertGen {
 		return store;
 	}
 
-	public KeyStore generateCertificate(String[] names) throws Exception {
+	public KeyStore generateCertificate(String[] names) throws CertificateEncodingException, IOException, CertIOException, OperatorCreationException, CertificateException, CertificateExpiredException, KeyStoreException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
 		// inspired by LittleProxy-mitm
 
 		// generate a new set of keys
@@ -235,7 +224,7 @@ public class CertGen {
 		return store;
 	}
 
-	public SSLContext generatePlainContext() throws Exception {
+	public SSLContext generatePlainContext() throws NoSuchAlgorithmException, KeyManagementException {
 		// create a new SSLContext
 		SSLContext context = SSLContext.getInstance("TLS");
 		context.init(null, null, rand);
@@ -243,7 +232,7 @@ public class CertGen {
 		return context;
 	}
 
-	public SSLContext generateSSLContext(String[] names) throws Exception {
+	public SSLContext generateSSLContext(String[] names) throws CertificateEncodingException, IOException, CertIOException, OperatorCreationException, CertificateException, CertificateExpiredException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException, InvalidKeyException, NoSuchProviderException, SignatureException {
 		// generate keystore for certificate
 		KeyStore store = generateCertificate(names);
 
