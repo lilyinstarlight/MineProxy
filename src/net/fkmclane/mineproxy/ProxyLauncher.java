@@ -185,25 +185,25 @@ public class ProxyLauncher {
 
 		// generate keytool commands based on operating system
 		if(os.contains("win")) {
-			keytool = new File(home + "\\..\\bin\\keytool.exe");
+			keytool = new File(home + "\\bin\\keytool.exe");
 			cacerts = new File(home + "\\lib\\security\\cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
 			add = new String[] { "runas", "/noprofile", "/user:Administrator", "cmd", "/c", keytool.toString().replace(" ", "\\ ") + " -import -noprompt -trustcacerts -keystore " + cacerts.toString().replace(" ", "\\ ") + " -alias mineproxy -file " + ca_cert_file.toString().replace(" ", "\\ ") + " -storepass changeit" };
 		}
 		else if(os.contains("mac")) {
-			keytool = new File(home + "/../bin/keytool");
+			keytool = new File(home + "/bin/keytool");
 			cacerts = new File(home + "/lib/security/cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
 			add = new String[] { "osascript", "-e", "do shell script \"'" + keytool.toString() + "' -import -noprompt -trustcacerts -keystore '" + cacerts.toString() + "' -alias mineproxy -file '" + ca_cert_file.toString() + "' -storepass changeit" + "\" with administrator privileges" };
 		}
 		else if(os.contains("linux")) {
-			keytool = new File(home + "/../bin/keytool");
+			keytool = new File(home + "/bin/keytool");
 			cacerts = new File(home + "/lib/security/cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
 			add = new String[] { "pkexec", "bash", "-c", keytool.toString().replace(" ", "\\ ") + " -import -noprompt -trustcacerts -keystore " + cacerts.toString().replace(" ", "\\ ") + " -alias mineproxy -file " + ca_cert_file.toString().replace(" ", "\\ ") + " -storepass changeit" };
 		}
 		else {
-			keytool = new File(home + "/../bin/keytool");
+			keytool = new File(home + "/bin/keytool");
 			cacerts = new File(home + "/lib/security/cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
 			add = new String[] { "sudo", "bash", "-c", keytool.toString().replace(" ", "\\ ") + " -import -noprompt -trustcacerts -keystore " + cacerts.toString().replace(" ", "\\ ") + " -alias mineproxy -file " + ca_cert_file.toString().replace(" ", "\\ ") + " -storepass changeit" };
