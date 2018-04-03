@@ -85,21 +85,22 @@ public class ProxyLauncher {
 		MineProxy proxy = null;
 		if(auth_server != null && auth_server.length() > 0) {
 			try {
+				// start proxy
 				proxy = new MineProxy(ca_cert_file, ca_key_file, auth_server);
 				proxy.start();
+
+				// add generated CA certificate to store
+				try {
+					addCACertificate(ca_cert_file);
+				}
+				catch(IOException e) {
+					alert("Error adding certificate: " + e);
+				}
 			}
 			catch(Exception e) {
 				alert("Error starting proxy server: " + e);
 				System.exit(1);
 			}
-		}
-
-		// add generated CA certificate to store
-		try {
-			addCACertificate(ca_cert_file);
-		}
-		catch(IOException e) {
-			alert("Error adding certificate: " + e);
 		}
 
 		// prepare jar arguments
