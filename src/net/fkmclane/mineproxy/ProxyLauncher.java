@@ -51,6 +51,8 @@ public class ProxyLauncher {
 			// download launcher if necessary
 			if(!jar.exists()) {
 				try {
+					System.err.println("MineProxy: Downloading launcher");
+
 					downloadLauncher(launcher_url, jar);
 				}
 				catch(IOException e) {
@@ -63,6 +65,8 @@ public class ProxyLauncher {
 		// create settings file if necessary
 		if(!settings_file.exists()) {
 			try {
+				System.err.println("MineProxy: Creating settings file");
+
 				settings_file.createNewFile();
 			}
 			catch(IOException e) {
@@ -73,6 +77,8 @@ public class ProxyLauncher {
 		// get auth server from settings file
 		String auth_server = "";
 		try {
+			System.err.println("MineProxy: Loading settings file");
+
 			Properties settings = new Properties();
 			settings.load(new FileInputStream(settings_file));
 			auth_server = settings.getProperty("auth");
@@ -85,13 +91,17 @@ public class ProxyLauncher {
 		MineProxy proxy = null;
 		if(auth_server != null && auth_server.length() > 0) {
 			try {
+				System.err.println("MineProxy: Creating proxy server");
+
 				// start proxy
 				proxy = new MineProxy(ca_cert_file, ca_key_file, auth_server);
 				proxy.start();
 
 				// add generated CA certificate to store
 				try {
-					addCACertificate(ca_cert_file);
+					System.err.println("MineProxy: Checking for CA certificate");
+
+					checkCACertificate(ca_cert_file);
 				}
 				catch(IOException e) {
 					alert("Error adding certificate: " + e);
@@ -134,6 +144,8 @@ public class ProxyLauncher {
 
 		// run JAR
 		try {
+			System.err.println("MineProxy: Loading JAR");
+
 			JarLoader.run(jar, jarargs);
 		}
 		catch(Exception e) {
@@ -175,7 +187,7 @@ public class ProxyLauncher {
 		return dir;
 	}
 
-	private static void addCACertificate(File ca_cert_file) throws IOException {
+	private static void checkCACertificate(File ca_cert_file) throws IOException {
 		String os = System.getProperty("os.name").toLowerCase();
 		String home = System.getProperty("java.home");
 

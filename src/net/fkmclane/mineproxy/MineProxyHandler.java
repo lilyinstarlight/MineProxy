@@ -56,7 +56,7 @@ public class MineProxyHandler extends Thread {
 
 	private static final Charset http_charset = Charset.forName("ISO-8859-1");
 
-	private static final Pattern mojang = Pattern.compile("http[s]?://(?:authserver\\.mojang\\.com|api\\.mojang\\.com|sessionserver\\.mojang\\.com|textures\\.minecraft\\.net)(.*)");
+	private static final Pattern mojang = Pattern.compile("http[s]?://(?:authserver\\.mojang\\.com|api\\.mojang\\.com|sessionserver\\.mojang\\.com|textures\\.minecraft\\.net|libraries\\.minecraft\\.net|launchermeta\\.mojang\\.com)(.*)");
 
 	private Socket client, remote;
 	private CertGen gen;
