@@ -5,8 +5,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.Proxy;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -207,7 +209,8 @@ public class MineProxyHandler extends Thread {
 			// connect to endpoint
 			System.err.println("MineProxy: Proxying " + sock_addr + ":" + Integer.toString(sock_port));
 			if (sock_port != 80 && sock_port != 443) {
-				remote = new Socket(sock_addr, sock_port);
+				remote = new Socket(Proxy.NO_PROXY);
+				remote.connect(new InetSocketAddress(sock_addr, sock_port));
 
 				// pipe the two together
 				Pipe pipe_client = new Pipe(new BufferedInputStream(client_in), new BufferedOutputStream(remote.getOutputStream()));
@@ -220,7 +223,7 @@ public class MineProxyHandler extends Thread {
 
 			if (sock_port == 443) {
 				// generate certificate
-				SSLContext context = gen.generateSSLContext(new String[] { "*.*", "*.*.*" });
+				SSLContext context = gen.generateSSLContext(new String[] { "*", "*.*", "*.*.*", "*.*.*.*", "*.*.*.*.*", "*.*.*.*.*.*" });
 
 				SSLSocket client_ssl = (SSLSocket)context.getSocketFactory().createSocket(client, sock_addr, sock_port, true);
 				client_ssl.setUseClientMode(false);
@@ -246,7 +249,8 @@ public class MineProxyHandler extends Thread {
 			if(request[1].length() == 0)
 				request[1] = "/";
 
-			remote = new Socket(url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort());
+			remote = new Socket(Proxy.NO_PROXY);
+			remote.connect(new InetSocketAddress(url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort()));
 
 			if (url.getProtocol().equals("https")) {
 				SSLContext context = gen.generatePlainContext();

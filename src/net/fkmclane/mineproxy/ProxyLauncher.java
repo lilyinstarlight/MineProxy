@@ -28,10 +28,13 @@ public class ProxyLauncher {
 			if(jar_dir == null)
 				jar_dir = ".";
 
+			// called directly
+			File minecraft_dir = getMinecraftDirectory();
+
 			// get files relative to JAR file directory
 			settings_file = new File(jar_dir + "/server.properties");
-			ca_cert_file = new File(jar_dir + "/ca.crt");
-			ca_key_file = new File(jar_dir + "/ca.key");
+			ca_cert_file = new File(minecraft_dir + "/ca.crt");
+			ca_key_file = new File(minecraft_dir + "/ca.key");
 
 			if(!jar.exists()) {
 				alert("Error: File not found");
@@ -115,27 +118,28 @@ public class ProxyLauncher {
 
 		// prepare jar arguments
 		String[] jarargs;
-		if (proxy != null) {
-			if(args.length > 1) {
-				// shift arguments over one
-				jarargs = new String[args.length + 2 - 1];
-				for(int i = 0; i < args.length - 1; i++)
-					jarargs[i + 2] = args[i + 1];
-			}
-			else {
-				jarargs = new String[2];
-			}
+		if (args.length > 0) {
+			// modify system proxy if not using launcher
+			System.setProperty("socksProxyHost", "127.0.0.1");
+			System.setProperty("socksProxyPort", Integer.toString(proxy.getPort()));
 
-			// set proxy arguments
-			jarargs[0] = "--proxyHost=localhost";
-			jarargs[1] = "--proxyPort=" + Integer.toString(proxy.getPort());
-		}
-		else {
-			if(args.length > 1) {
+			if (args.length > 1) {
 				// shift arguments over one
 				jarargs = new String[args.length - 1];
-				for(int i = 0; i < jarargs.length; i++)
+				for(int i = 0; i < args.length - 1; i++)
 					jarargs[i] = args[i + 1];
+			}
+			else {
+				jarargs = new String[0];
+			}
+		}
+		else {
+			if (proxy != null) {
+				// set proxy arguments
+				jarargs = new String[2];
+
+				jarargs[0] = "--proxyHost=localhost";
+				jarargs[1] = "--proxyPort=" + Integer.toString(proxy.getPort());
 			}
 			else {
 				jarargs = new String[0];
@@ -201,7 +205,7 @@ public class ProxyLauncher {
 			keytool = new File(home + "\\bin\\keytool.exe");
 			cacerts = new File(home + "\\lib\\security\\cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
-			add = new String[] { "runas", "/noprofile", "/user:Administrator", "cmd", "/c", keytool.toString().replace(" ", "\\ ") + " -import -noprompt -trustcacerts -keystore " + cacerts.toString().replace(" ", "\\ ") + " -alias mineproxy -file " + ca_cert_file.toString().replace(" ", "\\ ") + " -storepass changeit" };
+			add = new String[] { keytool.toString(), "-import", "-noprompt", "-trustcacerts", "-keystore", cacerts.toString(), "-alias", "mineproxy", "-file", ca_cert_file.toString(), "-storepass", "changeit" };
 		}
 		else if(os.contains("mac")) {
 			keytool = new File(home + "/bin/keytool");
