@@ -1,4 +1,4 @@
-package net.fkmclane.mineproxy;
+package io.fooster.mineproxy;
 
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedInputStream;
@@ -138,7 +138,7 @@ public class ProxyLauncher {
 				// set proxy arguments
 				jarargs = new String[2];
 
-				jarargs[0] = "--proxyHost=localhost";
+				jarargs[0] = "--proxyHost=127.0.0.1";
 				jarargs[1] = "--proxyPort=" + Integer.toString(proxy.getPort());
 			}
 			else {

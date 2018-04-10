@@ -1,4 +1,4 @@
-package net.fkmclane.mineproxy;
+package io.fooster.mineproxy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

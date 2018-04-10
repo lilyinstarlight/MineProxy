@@ -1,4 +1,4 @@
-package net.fkmclane.mineproxy;
+package io.fooster.mineproxy;
 
 import java.io.InputStream;
 import java.io.IOException;

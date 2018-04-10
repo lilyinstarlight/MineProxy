@@ -1,4 +1,4 @@
-package net.fkmclane.mineproxy;
+package io.fooster.mineproxy;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -84,8 +84,7 @@ public class MineProxyHandler extends Thread {
 
 			// bail on wrong version
 			if (ver != SOCKS_VERSION) {
-				client_out.write(SOCKS_VERSION);
-				client_out.write(SOCKS_REPLY_GENERAL_FAILURE);
+				client_out.write(new byte[] { SOCKS_VERSION, SOCKS_REPLY_GENERAL_FAILURE });
 				client.close();
 				return;
 			}
@@ -94,8 +93,7 @@ public class MineProxyHandler extends Thread {
 			for (int i = 0; i < num; i++)
 				methods[i] = (byte)client_in.read();
 
-			client_out.write(SOCKS_VERSION);
-			client_out.write(SOCKS_METHOD_NO_AUTHENTICATION_REQUIRED);
+			client_out.write(new byte[] { SOCKS_VERSION, SOCKS_METHOD_NO_AUTHENTICATION_REQUIRED });
 
 			// connect
 			ver = (byte)client_in.read();
@@ -105,8 +103,7 @@ public class MineProxyHandler extends Thread {
 
 			// bail on wrong version
 			if (ver != SOCKS_VERSION) {
-				client_out.write(SOCKS_VERSION);
-				client_out.write(SOCKS_REPLY_GENERAL_FAILURE);
+				client_out.write(new byte[] { SOCKS_VERSION, SOCKS_REPLY_GENERAL_FAILURE });
 				client.close();
 				return;
 			}
@@ -163,8 +160,7 @@ public class MineProxyHandler extends Thread {
 					break;
 
 				default:
-					client_out.write(SOCKS_VERSION);
-					client_out.write(SOCKS_REPLY_ADDRESS_TYPE_NOT_SUPPORTED);
+					client_out.write(new byte[] { SOCKS_VERSION, SOCKS_REPLY_ADDRESS_TYPE_NOT_SUPPORTED });
 					client.close();
 					return;
 			}
@@ -175,34 +171,57 @@ public class MineProxyHandler extends Thread {
 			int sock_port = ((port[0] & 0xff) << 8) | (port[1] & 0xff);
 
 			// follow given command
+			byte[] reply;
 			switch (cmd) {
 				case SOCKS_COMMAND_CONNECT:
-					client_out.write(SOCKS_VERSION);
-					client_out.write(SOCKS_REPLY_SUCCEEDED);
-					client_out.write(rsv);
-					client_out.write(atyp);
-					client_out.write(addr);
-					client_out.write(port);
+					reply = new byte[4 + addr.length + port.length];
+
+					reply[0] = SOCKS_VERSION;
+					reply[1] = SOCKS_REPLY_SUCCEEDED;
+					reply[2] = rsv;
+					reply[3] = atyp;
+
+					for (int i = 0; i < addr.length; i++)
+						reply[i + 4] = addr[i];
+
+					for (int i = 0; i < port.length; i++)
+						reply[i + 4 + addr.length] = port[i];
+
+					client_out.write(reply);
 					break;
 
 				case SOCKS_COMMAND_BIND:
-					client_out.write(SOCKS_VERSION);
-					client_out.write(SOCKS_REPLY_SUCCEEDED);
-					client_out.write(rsv);
-					client_out.write(atyp);
-					client_out.write(addr);
-					client_out.write(port);
-					client.close();
+					reply = new byte[4 + addr.length + port.length];
+
+					reply[0] = SOCKS_VERSION;
+					reply[1] = SOCKS_REPLY_SUCCEEDED;
+					reply[2] = rsv;
+					reply[3] = atyp;
+
+					for (int i = 0; i < addr.length; i++)
+						reply[i + 4] = addr[i];
+
+					for (int i = 0; i < port.length; i++)
+						reply[i + 4 + addr.length] = port[i];
+
+					client_out.write(reply);
 					return;
 
 				case SOCKS_COMMAND_UDP_ASSOCIATE:
-					client_out.write(SOCKS_VERSION);
-					client_out.write(SOCKS_REPLY_SUCCEEDED);
-					client_out.write(rsv);
-					client_out.write(atyp);
-					client_out.write(addr);
-					client_out.write(port);
-					client.close();
+					reply = new byte[4 + addr.length + port.length];
+
+					reply[0] = SOCKS_VERSION;
+					reply[1] = SOCKS_REPLY_SUCCEEDED;
+					reply[2] = rsv;
+					reply[3] = atyp;
+
+					for (int i = 0; i < addr.length; i++)
+						reply[i + 4] = addr[i];
+
+					for (int i = 0; i < port.length; i++)
+						reply[i + 4 + addr.length] = port[i];
+
+					client_out.write(reply);
 					return;
 			}
 

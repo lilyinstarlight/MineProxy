@@ -1,4 +1,4 @@
-package net.fkmclane.mineproxy;
+package io.fooster.mineproxy;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class MineProxy extends Thread {
 	}
 
 	public void run() {
-		System.err.println("MineProxy: Started proxy on http://localhost:" + Integer.toString(port));
+		System.err.println("MineProxy: Started proxy on http://127.0.0.1:" + Integer.toString(port));
 
 		while(true) {
 			try {

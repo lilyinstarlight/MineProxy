@@ -15,7 +15,7 @@
 			<zipfileset src="lib/bcprov-jdk15on-159.jar"/>
 			<zipfileset src="lib/bcpkix-jdk15on-159.jar"/>
 			<manifest>
-				<attribute name="Main-Class" value="net.fkmclane.mineproxy.ProxyLauncher"/>
+				<attribute name="Main-Class" value="io.fooster.mineproxy.ProxyLauncher"/>
 			</manifest>
 		</jar>
 	</target>
