@@ -205,7 +205,8 @@ public class ProxyLauncher {
 			keytool = new File(home + "\\bin\\keytool.exe");
 			cacerts = new File(home + "\\lib\\security\\cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
-			add = new String[] { keytool.toString(), "-import", "-noprompt", "-trustcacerts", "-keystore", cacerts.toString(), "-alias", "mineproxy", "-file", ca_cert_file.toString(), "-storepass", "changeit" };
+			add = new String[] { "powershell", "-Command", "Start-Process -Wait -Verb RunAs -FilePath '" + keytool.toString() + "' -ArgumentList '-import','-noprompt','-trustcacerts','-keystore','\"\"\"" + cacerts.toString(), "\"\"\"','-alias','mineproxy','-file','\"\"\"" + ca_cert_file.toString() + "\"\"\"','-storepass','changeit'" };
+			System.out.println(String.join(" ", add));
 		}
 		else if(os.contains("mac")) {
 			keytool = new File(home + "/bin/keytool");
@@ -248,11 +249,23 @@ public class ProxyLauncher {
 			}
 		}
 
+		if (process.exitValue() > 0) {
+			alert("Error: Failed to check CA certificate");
+			System.exit(1);
+		}
+
 		if (!found) {
 			// run certificate installer
 			process = Runtime.getRuntime().exec(add);
+
 			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			System.out.println(reader.readLine());
+			while ((str = reader.readLine()) != null)
+				continue;
+
+			if (process.exitValue() > 0) {
+				alert("Error: Failed to add CA certificate");
+				System.exit(1);
+			}
 		}
 	}
 
