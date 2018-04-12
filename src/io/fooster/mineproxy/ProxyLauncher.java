@@ -206,7 +206,6 @@ public class ProxyLauncher {
 			cacerts = new File(home + "\\lib\\security\\cacerts");
 			check = new String[] { keytool.toString(), "-list", "-keystore", cacerts.toString(), "-storepass", "changeit", "-noprompt" };
 			add = new String[] { "powershell", "-Command", "Start-Process -Wait -Verb RunAs -FilePath '" + keytool.toString() + "' -ArgumentList '-import','-noprompt','-trustcacerts','-keystore','\"\"\"" + cacerts.toString(), "\"\"\"','-alias','mineproxy','-file','\"\"\"" + ca_cert_file.toString() + "\"\"\"','-storepass','changeit'" };
-			System.out.println(String.join(" ", add));
 		}
 		else if(os.contains("mac")) {
 			keytool = new File(home + "/bin/keytool");
@@ -232,40 +231,55 @@ public class ProxyLauncher {
 			return;
 		}
 
-		Process process;
+		try {
+			Process process;
 
-		// run checker
-		process = Runtime.getRuntime().exec(check);
+			// run checker
+			ProcessBuilder builder = new ProcessBuilder(check);
+			builder.redirectErrorStream(true);
+			process = builder.start();
 
-		boolean found = false;
+			boolean found = false;
 
-		// find line starting with "mineproxy,"
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String str;
-		while ((str = reader.readLine()) != null) {
-			if (str.startsWith("mineproxy,")) {
-				found = true;
-				break;
+			// find line starting with "mineproxy,"
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String str;
+			while ((str = reader.readLine()) != null) {
+				if (str.startsWith("mineproxy,")) {
+					found = true;
+				}
 			}
-		}
 
-		if (process.exitValue() > 0) {
-			alert("Error: Failed to check CA certificate");
-			System.exit(1);
-		}
-
-		if (!found) {
-			// run certificate installer
-			process = Runtime.getRuntime().exec(add);
-
-			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			while ((str = reader.readLine()) != null)
-				continue;
+			process.waitFor();
 
 			if (process.exitValue() > 0) {
-				alert("Error: Failed to add CA certificate");
+				alert("Error: Failed to check CA certificate");
 				System.exit(1);
 			}
+
+			if (!found) {
+				System.err.println("MineProxy: Adding CA certificate");
+
+				// run certificate installer
+				builder = new ProcessBuilder(add);
+				builder.redirectErrorStream(true);
+				process = builder.start();
+
+				reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				while ((str = reader.readLine()) != null)
+					continue;
+
+				process.waitFor();
+
+				if (process.exitValue() > 0) {
+					alert("Error: Failed to add CA certificate");
+					System.exit(1);
+				}
+			}
+		}
+		catch (InterruptedException e) {
+			alert("Error: Failed to check CA certificate");
+			System.exit(1);
 		}
 	}
 
